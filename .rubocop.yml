@@ -35,3 +35,7 @@ Layout/EmptyLinesAroundClassBody:
 
 Style/ClassAndModuleChildren:
   Enabled: false
+
+Bundler/OrderedGems:
+  Enabled: false
+
