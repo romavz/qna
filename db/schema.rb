@@ -16,7 +16,7 @@ ActiveRecord::Schema.define(version: 2020_01_23_215256) do
   enable_extension "plpgsql"
 
   create_table "answers", force: :cascade do |t|
-    t.text "body"
+    t.text "body", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "question_id", null: false
@@ -24,8 +24,8 @@ ActiveRecord::Schema.define(version: 2020_01_23_215256) do
   end
 
   create_table "questions", force: :cascade do |t|
-    t.string "title"
-    t.text "body"
+    t.string "title", null: false
+    t.text "body", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
