@@ -30,6 +30,9 @@ Style/ClassVars:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
+Style/CommentedKeyword:
+  Enabled: false
+
 Layout/EmptyLinesAroundClassBody:
   Enabled: false
 
