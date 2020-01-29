@@ -1,9 +1,5 @@
 class QuestionsController < ApplicationController
 
-  def index
-    @questions = Question.all
-  end
-
   def show; end
 
   def new; end
@@ -16,21 +12,6 @@ class QuestionsController < ApplicationController
     else
       render :new
     end
-  end
-
-  def edit; end
-
-  def update
-    if question.update(question_params)
-      redirect_to question
-    else
-      render :edit
-    end
-  end
-
-  def destroy
-    question.delete
-    redirect_to questions_path
   end
 
   private
