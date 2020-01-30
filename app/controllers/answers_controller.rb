@@ -5,7 +5,7 @@ class AnswersController < ApplicationController
   def new; end
 
   def create
-    @answer = Answer.new(answer_params)
+    @answer = question.answers.create(answer_params)
 
     if @answer.save
       redirect_to @answer
@@ -16,9 +16,12 @@ class AnswersController < ApplicationController
 
   private
 
+  def question
+    @question ||= Question.find(params[:question_id])
+  end
+
   def answer_params
     params.require(:answer).permit(:body)
-          .merge(question_id: params[:question_id])
   end
 
 end

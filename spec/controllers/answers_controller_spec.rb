@@ -13,17 +13,15 @@ RSpec.describe AnswersController, type: :controller do
   describe 'POST #create' do
     let(:answer_attributes) { attributes_for(:answer) }
 
-    def post_create
-      post :create, params: { question_id: question, answer: answer_attributes }
-    end
+    subject { post :create, params: { question_id: question, answer: answer_attributes } }
 
     context 'with valid attributes' do
       it 'saves a new answer in database' do
-        expect { post_create }.to change { question.answers.count }.by(1)
+        expect { subject }.to change { question.answers.count }.by(1)
       end
 
       it 'redirects to show view' do
-        expect(post_create).to redirect_to assigns(:answer)
+        expect(subject).to redirect_to assigns(:answer)
       end
     end
 
@@ -31,11 +29,11 @@ RSpec.describe AnswersController, type: :controller do
       let(:answer_attributes) { attributes_for(:answer, :invalid) }
 
       it 'does not save the answer' do
-        expect { post_create }.to_not(change { question.answers.count })
+        expect { subject }.to_not change(Answer, :count)
       end
 
       it 're-renders new view' do
-        expect(post_create).to render_template :new
+        expect(subject).to render_template :new
       end
     end
   end
