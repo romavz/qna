@@ -7,7 +7,7 @@ FactoryBot.define do
       title { nil }
     end
 
-    factory :question_with_answers do
+    trait :with_answers do
       transient do
         answers_count { 5 }
       end
