@@ -20,8 +20,8 @@ RSpec.describe AnswersController, type: :controller do
         expect { subject }.to change { question.answers.count }.by(1)
       end
 
-      it 'redirects to show view' do
-        expect(subject).to redirect_to assigns(:answer)
+      it 'redirects to question show view' do
+        expect(subject).to redirect_to assigns(:question)
       end
     end
 
@@ -32,8 +32,8 @@ RSpec.describe AnswersController, type: :controller do
         expect { subject }.to_not change(Answer, :count)
       end
 
-      it 're-renders new view' do
-        expect(subject).to render_template :new
+      it 'redirects to question show view' do
+        expect(subject).to redirect_to assigns(:question)
       end
     end
   end
