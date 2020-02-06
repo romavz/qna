@@ -6,4 +6,7 @@ Metrics/BlockLength:
 
 Layout/EmptyLinesAroundBlockBody:
   Enabled: false
+
+Style/RedundantPercentQ:
+  Enabled: false
   
