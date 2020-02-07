@@ -1,7 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe AnswersController, type: :controller do
+  let(:user) { create(:user) }
   let(:question) { create(:question) }
+
+  before { login(user) }
 
   describe 'GET #new' do
     it 'renders new view' do
