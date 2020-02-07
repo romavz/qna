@@ -1,29 +1,45 @@
 require 'rails_helper'
 
-feature 'Пользователь может создавать вопрос', %q(
-  Как пользователь системы,
+feature 'Только аутентифицированный пользователь может создавать вопросы', %q(
+  Как Аутентифицированный пользователь системы,
   Я хочу создавать вопросы,
   Чтобы получать на них ответы
  ) do
+  given(:user) { create(:user) }
 
-  before { visit new_question_path }
-
-  scenario 'Пользователь пытается создать вопрос больше одного символа' do
-    fill_in 'Title', with: 'Some title'
-    fill_in 'Body', with: 'Some question text'
-
-    click_on 'Ask'
-
-    expect(page).to have_content('Your question successfully created')
-    expect(page).to have_content('Some title')
-    expect(page).to have_content('Some question text')
+  def visit_questions_page
+    visit questions_path
+    click_on 'Ask question'
   end
 
-  scenario 'Пользователь пытается создать пустой вопрос, содержащий 0 символов' do
-    click_on 'Ask'
+  describe 'Аутентифицированный пользователь' do
+    before do
+      sign_in(user)
+      visit_questions_page
+    end
 
-    expect(page).to have_content('error(s) detected:')
-    # Пользователю показывается странице создания вопроса с сообщением об ошибках заполнения полей 
+    scenario 'задает вопрос' do
+      fill_in 'Title', with: 'Some title'
+      fill_in 'Body', with: 'Some question text'
+
+      click_on 'Ask'
+
+      expect(page).to have_content('Your question successfully created')
+      expect(page).to have_content('Some title')
+      expect(page).to have_content('Some question text')
+    end
+
+    scenario 'задает вопрос, с ошибками' do
+      click_on 'Ask'
+
+      expect(page).to have_content('error(s) detected:')
+    end
   end
 
+  scenario 'Неаутентифицированный пользователь задает вопрос' do
+    visit_questions_page
+
+    expect(current_path).to eq new_user_session_path
+    expect(page).to have_content('You need to sign in or sign up before continuing.')
+  end
 end
