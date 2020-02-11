@@ -4,7 +4,6 @@ RSpec.describe Answer, type: :model do
   it do
     should belong_to(:question)
       .with_foreign_key(:question_id)
-      .dependent(:destroy)
       .required
   end
   it { should have_db_index :question_id }

@@ -1,1 +1,4 @@
-p= answer.body
+.answer
+  p= answer.body
+  .controls
+    = link_to 'Delete', answer_path(answer), method: :delete

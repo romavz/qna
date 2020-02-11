@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :question do
+    author { create :user }
     sequence(:title) { |n| "Question title #{n}" }
     sequence(:body) { |n| "My text #{n}" }
 

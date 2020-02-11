@@ -6,19 +6,32 @@ class QuestionsController < ApplicationController
   end
 
   def show
-    @answer = question.answers.build
+    @answer = Answer.new
   end
 
   def new; end
 
   def create
-    @question = Question.new(question_params)
+    @question = current_user.questions.new(question_params)
 
     if @question.save
       redirect_to @question, notice: 'Your question successfully created'
     else
       render :new
     end
+  end
+
+  def destroy
+    question = Question.find(params[:id])
+    if question.author == current_user
+      question.destroy
+      flash.notice = 'Your question successfully deleted'
+    else
+      flash.notice = 'You can delete only your own questions.'
+      redirect_back fallback_location: question_path(question) and return
+    end
+
+    redirect_to questions_path
   end
 
   private

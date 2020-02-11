@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe QuestionsController, type: :controller do
   let(:user) { create(:user) }
-  let(:question) { create(:question) }
+  let(:question) { create(:question, author: user) }
 
   describe 'GET #index' do
     let(:questions) { create_list :question, 5 }
@@ -62,5 +62,37 @@ RSpec.describe QuestionsController, type: :controller do
       end
     end # context
   end # describe 'POST #create'
+
+  describe 'DELETE #destroy' do
+    let!(:question) { create(:question, author: user) }
+    subject { delete :destroy, params: { id: question } }
+
+    before { login(user) }
+
+    context 'question belongs to author' do
+
+      it 'author delete question' do
+        expect { subject }.to change(Question, :count).by(-1)
+      end
+
+      it 'redirects to index' do
+        expect(subject).to redirect_to questions_path
+      end
+    end
+
+    context 'question belongs to other user' do
+      let(:user2) { create(:user) }
+      let!(:question) { create(:question, author: user2) }
+
+      it "user can't delete question" do
+        expect { subject }.to_not change(Question, :count)
+      end
+
+      it 'redirects to show view' do
+        expect(subject).to redirect_to question_path(question)
+      end
+    end
+
+  end
 
 end

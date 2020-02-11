@@ -4,14 +4,24 @@ class AnswersController < ApplicationController
   def show; end
 
   def create
-    @answer = question.answers.create(answer_params)
+    @answer = question.answers.new(answer_params)
+    @answer.author = current_user
 
-    if @answer.save
-      redirect_to question_path question
+    flash.notice = @answer.errors.full_messages unless @answer.save
+
+    redirect_to question_path question
+  end
+
+  def destroy
+    answer = Answer.find(params[:id])
+    if answer.author == current_user
+      answer.destroy
+      flash.notice = 'Your answer successfully deleted'
     else
-      flash.notice = @answer.errors.full_messages
-      redirect_to question_path question
+      flash.notice = 'You can delete only your own answers'
     end
+
+    redirect_to question_path answer.question
   end
 
   private
