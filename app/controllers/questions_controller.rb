@@ -23,15 +23,14 @@ class QuestionsController < ApplicationController
 
   def destroy
     question = Question.find(params[:id])
-    if question.author == current_user
+    if current_user.author?(question)
       question.destroy
       flash.notice = 'Your question successfully deleted'
-    else
-      flash.notice = 'You can delete only your own questions.'
-      redirect_back fallback_location: question_path(question) and return
+      redirect_to questions_path and return
     end
 
-    redirect_to questions_path
+    flash.notice = 'You can delete only your own questions.'
+    redirect_back fallback_location: question_path(question)
   end
 
   private

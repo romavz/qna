@@ -7,8 +7,8 @@ feature 'Автор может удалять только свои вопрос
 ) do
   let(:user) { create(:user) }
   let(:user_2) { create(:user) }
-  let(:question) { create(:question, author: user) }
-  let(:user2_question) { create(:question, author: user_2) }
+  let(:question) { create(:question, user: user) }
+  let(:user2_question) { create(:question, user: user_2) }
 
   describe 'Аутентифицированный пользователь' do
     before { sign_in(user) }

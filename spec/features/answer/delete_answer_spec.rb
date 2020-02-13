@@ -7,10 +7,10 @@ feature 'Автор может удалять только свои ответы
 ) do
   given(:user) { create(:user) }
   given(:user_2) { create(:user) }
-  given!(:question) { create(:question, author: user) }
+  given!(:question) { create(:question, user: user) }
 
   def create_answer_for(user)
-    create(:answer, question: question, author: user)
+    create(:answer, question: question, user: user)
   end
 
   describe 'Аутентифицированный пользователь' do

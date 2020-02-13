@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe QuestionsController, type: :controller do
   let(:user) { create(:user) }
-  let(:question) { create(:question, author: user) }
+  let(:question) { create(:question, user: user) }
 
   describe 'GET #index' do
     let(:questions) { create_list :question, 5 }
@@ -64,14 +64,14 @@ RSpec.describe QuestionsController, type: :controller do
   end # describe 'POST #create'
 
   describe 'DELETE #destroy' do
-    let!(:question) { create(:question, author: user) }
+    let!(:question) { create(:question, user: user) }
     subject { delete :destroy, params: { id: question } }
 
     before { login(user) }
 
-    context 'question belongs to author' do
+    context 'question belongs to user' do
 
-      it 'author delete question' do
+      it 'user delete question' do
         expect { subject }.to change(Question, :count).by(-1)
       end
 
@@ -82,7 +82,7 @@ RSpec.describe QuestionsController, type: :controller do
 
     context 'question belongs to other user' do
       let(:user2) { create(:user) }
-      let!(:question) { create(:question, author: user2) }
+      let!(:question) { create(:question, user: user2) }
 
       it "user can't delete question" do
         expect { subject }.to_not change(Question, :count)

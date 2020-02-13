@@ -5,7 +5,7 @@ class AnswersController < ApplicationController
 
   def create
     @answer = question.answers.new(answer_params)
-    @answer.author = current_user
+    @answer.user = current_user
 
     flash.notice = @answer.errors.full_messages unless @answer.save
 
@@ -14,7 +14,7 @@ class AnswersController < ApplicationController
 
   def destroy
     answer = Answer.find(params[:id])
-    if answer.author == current_user
+    if current_user.author?(answer)
       answer.destroy
       flash.notice = 'Your answer successfully deleted'
     else
