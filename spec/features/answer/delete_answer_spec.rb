@@ -8,39 +8,32 @@ feature 'Автор может удалять только свои ответы
   given(:user) { create(:user) }
   given(:user_2) { create(:user) }
   given!(:question) { create(:question, user: user) }
-
-  def create_answer_for(user)
-    create(:answer, question: question, user: user)
-  end
+  given!(:answer) { create(:answer, question: question, user: user) }
 
   describe 'Аутентифицированный пользователь' do
     background { sign_in(user) }
-
     scenario 'может удалить свой ответ' do
-      create_answer_for(user)
       visit question_path(question)
       within('.answers') { click_on 'Delete' }
 
       expect(current_path).to eq question_path(question)
       expect(page).to have_content('Your answer successfully deleted')
+      expect(page).to have_no_content(answer.body)
     end
 
-    scenario 'не может удалить чужой ответ' do
-      create_answer_for(user_2)
-      visit question_path(question)
-      within('.answers') { click_on 'Delete' }
+    context do
+      given!(:answer) { create(:answer, question: question, user: user_2) }
 
-      expect(current_path).to eq question_path(question)
-      expect(page).to have_content('You can delete only your own answers')
+      scenario 'не может удалить чужой ответ' do
+        visit question_path(question)
+        expect(find('.answers')).to have_no_content('Delete')
+      end
     end
   end
 
   scenario 'Неаутентифицированный пользователь не может удалять ответы' do
-    create_answer_for(user)
     visit question_path question
-    within('.answers') { click_on 'Delete' }
-
-    expect(page).to have_content('You need to sign in or sign up before continuing')
+    expect(find('.answers')).to have_no_content('Delete')
   end
 
 end

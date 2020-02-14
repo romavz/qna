@@ -1,4 +1,4 @@
 .answer
   p= answer.body
-  .controls
-    = link_to 'Delete', answer_path(answer), method: :delete
+  
+  = add_controls_for answer, answer_path(answer)

@@ -23,17 +23,15 @@ feature 'Автор может удалять только свои вопрос
 
     scenario 'не может удалить чужой вопрос' do
       visit question_path(user2_question)
-      click_on 'Delete'
-      expect(page).to have_content('You can delete only your own questions')
-      expect(current_path).to eq question_path(user2_question)
+
+      expect(page).to have_no_content('Delete')
     end
   end
 
   scenario 'Неаутентифицированный пользователь не может удалять вопросы' do
     visit question_path(question)
-    click_on 'Delete'
 
-    expect(page).to have_content('You need to sign in or sign up before continuing')
+    expect(page).to have_no_content('Delete')
   end
 
 end

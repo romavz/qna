@@ -7,15 +7,12 @@ feature 'Только аутентифицированный пользоват�
  ) do
   given(:user) { create(:user) }
 
-  def visit_questions_page
-    visit questions_path
-    click_on 'Ask question'
-  end
-
   describe 'Аутентифицированный пользователь' do
     before do
       sign_in(user)
-      visit_questions_page
+
+      visit questions_path
+      click_on 'Ask question'
     end
 
     scenario 'задает вопрос' do
@@ -37,7 +34,8 @@ feature 'Только аутентифицированный пользоват�
   end
 
   scenario 'Неаутентифицированный пользователь задает вопрос' do
-    visit_questions_page
+    visit questions_path
+    click_on 'Ask question'
 
     expect(current_path).to eq new_user_session_path
     expect(page).to have_content('You need to sign in or sign up before continuing.')

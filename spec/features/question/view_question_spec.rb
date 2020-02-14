@@ -6,20 +6,16 @@ feature 'Пользователь может просматривать вопр
   И Чтобы посмотреть ответы
 ) do
 
-  given(:question) { Question.first }
-  given(:answers) { question.answers }
-
-  background do
-    create_list :question, 5, :with_answers
-  end
+  given!(:question) { create(:question, :with_answers) }
+  given!(:answers) { question.answers }
 
   scenario 'Пользователь переходит на страницу вопроса' do
-    visit questions_path
-    click_on question.title
+    visit question_path question
 
     expect(page).to have_content question.title
-    expect(page).to have_content answers.first.body
-    expect(page).to have_content answers.last.body
+    answers.each do |answer|
+      expect(page).to have_content answer.body
+    end
   end
 
 end

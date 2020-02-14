@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-feature 'Пользователь может создавть ответ на странице вопроса', %q(
+feature 'Пользователь может создавать ответ на странице вопроса', %q(
   Пользователь может добавлять ответ на вопрос,
   Чтобы поделиться своим опытом
 ) do
@@ -31,13 +31,10 @@ feature 'Пользователь может создавть ответ на с
     end
   end
 
-  scenario 'Неаутентифицированный пользователь добавляет ответ' do
+  scenario 'Неаутентифицированному пользователю недоступна форма ввода ответов' do
     visit question_path(question)
-    fill_in 'Your answer', with: 'Some answer text'
-    click_on 'Add answer'
-
-    expect(current_path).to eq new_user_session_path
-    expect(page).to have_content('You need to sign in or sign up before continuing.')
+    expect(page).to have_no_content('Your answer')
+    expect(page).to have_no_content('Add answer')
   end
 
 end

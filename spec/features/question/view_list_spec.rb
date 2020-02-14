@@ -7,21 +7,15 @@ feature 'Пользователь может просматривать спис
     И чтоб не отвлекаться на подробности
 ) do
 
-  background do
-    create_list :question, 5
-  end
-
-  given(:first_question) { Question.first }
-  given(:last_question) { Question.last }
+  given!(:questions) { create_list(:question, 2) }
 
   scenario 'Пользователь переходит к списку вопросов' do
     visit questions_path
 
     expect(page).to have_content('Questions:')
-    expect(page).to have_content(first_question.title)
-    expect(page).to have_content(last_question.title)
-
-    expect(page).to have_no_content(first_question.body)
+    questions.each do |question|
+      expect(page).to have_content(question.title)
+    end
   end
 
 end
