@@ -35,20 +35,31 @@ RSpec.describe QuestionsController, type: :controller do
       end
     end
 
-    describe 'POST #create' do
-      before { post :create, params: { question: attributes_for(:question) } }
-
-      it 'redirecs to login path' do
-        expect(response).to redirect_to(new_user_session_path)
+    shared_examples "don't changes questions count" do
+      it "don't changes questions count" do
+        expect { subject }.to_not change(Question, :count)
       end
     end
 
-    describe 'DELETE #destroy' do
-      before { delete :destroy, params: { id: question } }
-
+    shared_examples 'redirecs to login path' do
       it 'redirecs to login path' do
-        expect(response).to redirect_to(new_user_session_path)
+        expect(subject).to redirect_to(new_user_session_path)
       end
+    end
+
+    describe 'POST #create' do
+      subject { post :create, params: { question: attributes_for(:question) } }
+
+      include_examples "don't changes questions count"
+      include_examples 'redirecs to login path'
+    end
+
+    describe 'DELETE #destroy' do
+      let!(:question) { :question }
+      subject { delete :destroy, params: { id: question } }
+
+      include_examples "don't changes questions count"
+      include_examples 'redirecs to login path'
     end
   end # context 'For guest'
 
