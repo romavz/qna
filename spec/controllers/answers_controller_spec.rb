@@ -4,40 +4,91 @@ RSpec.describe AnswersController, type: :controller do
   let(:user) { create(:user) }
   let(:question) { create(:question) }
 
-  before { login(user) }
-
-  describe 'GET #new' do
-    it 'renders new view' do
-      get :new, params: { question_id: question }
-      expect(response).to render_template :new
+  shared_examples "don't changes answers count" do
+    it "don't changes answers count" do
+      expect { subject }.to_not change(Answer, :count)
     end
   end
 
-  describe 'POST #create' do
-    let(:answer_attributes) { attributes_for(:answer) }
-
-    subject { post :create, params: { question_id: question, answer: answer_attributes } }
-
-    context 'with valid attributes' do
-      it 'saves a new answer in database' do
-        expect { subject }.to change { question.answers.count }.by(1)
-      end
-
-      it 'redirects to question show view' do
-        expect(subject).to redirect_to assigns(:question)
+  context 'For guest' do
+    shared_examples 'redirects to login path' do
+      it 'redirects to login path' do
+        expect(subject).to redirect_to(new_user_session_path)
       end
     end
 
-    context 'with invalid attributes' do
-      let(:answer_attributes) { attributes_for(:answer, :invalid) }
+    describe 'POST #create' do
+      let(:answer_attributes) { attributes_for(:answer) }
+      subject { post :create, params: { question_id: question, answer: answer_attributes } }
 
-      it 'does not save the answer' do
-        expect { subject }.to_not change(Answer, :count)
-      end
+      include_examples "don't changes answers count"
+      include_examples 'redirects to login path'
+    end
 
-      it 'redirects to question show view' do
-        expect(subject).to redirect_to assigns(:question)
-      end
+    describe 'DELETE #destroy' do
+      let!(:answer) { create :answer }
+      subject { delete :destroy, params: { id: answer } }
+
+      include_examples "don't changes answers count"
+      include_examples 'redirects to login path'
     end
   end
+
+  context 'For authenticated user' do
+    before { login(user) }
+
+    describe 'POST #create' do
+      let(:answer_attributes) { attributes_for(:answer) }
+
+      subject { post :create, params: { question_id: question, answer: answer_attributes } }
+
+      context 'with valid attributes' do
+        it 'saves a new answer in database' do
+          expect { subject }.to change { question.answers.count }.by(1)
+        end
+
+        it 'redirects to question show view' do
+          expect(subject).to redirect_to assigns(:question)
+        end
+      end
+
+      context 'with invalid attributes' do
+        let(:answer_attributes) { attributes_for(:answer, :invalid) }
+
+        include_examples "don't changes answers count"
+
+        it 'redirects to question show view' do
+          expect(subject).to redirect_to assigns(:question)
+        end
+      end
+    end
+
+    describe 'DELETE #destroy' do
+      subject { delete :destroy, params: { id: answer } }
+
+      context 'answer belongs to user' do
+        let!(:answer) { create(:answer, question: question, user: user) }
+
+        it 'must delete answer' do
+          expect { subject }.to change(Answer, :count).by(-1)
+        end
+
+        it 'redirects to question show view' do
+          expect(subject).to redirect_to question
+        end
+      end
+
+      context 'answer belongs to other user' do
+        let(:user_2) { create :user }
+        let!(:answer) { create(:answer, question: question, user: user_2) }
+
+        include_examples "don't changes answers count"
+
+        it 'redirects to question show view' do
+          expect(subject).to redirect_to question
+        end
+      end
+    end # context 'For authenticated user'
+  end
+
 end

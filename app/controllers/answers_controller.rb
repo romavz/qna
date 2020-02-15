@@ -1,7 +1,5 @@
 class AnswersController < ApplicationController
-  before_action :authenticate_user!, except: %i[index show]
-
-  def show; end
+  before_action :authenticate_user!
 
   def create
     @answer = question.answers.new(answer_params)
