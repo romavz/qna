@@ -45,6 +45,7 @@ RSpec.describe AnswersController, type: :controller do
       context 'with valid attributes' do
         it 'saves a new answer in database' do
           expect { subject }.to change { question.answers.count }.by(1)
+          expect(assigns(:answer).errors).to be_empty
         end
 
         it 'redirects to question show view' do
@@ -57,8 +58,13 @@ RSpec.describe AnswersController, type: :controller do
 
         include_examples "don't changes answers count"
 
-        it 'redirects to question show view' do
-          expect(subject).to redirect_to assigns(:question)
+        it 'renders question show view' do
+          expect(subject).to render_template 'questions/show'
+        end
+
+        it 'assigns answer errors' do
+          subject
+          expect(assigns(:answer).errors).not_to be_empty
         end
       end
     end

@@ -1,4 +1,5 @@
-.answer
-  p= answer.body
-  
-  = add_controls_for answer, answer_path(answer)
+- if answer.id.present?
+  .answer
+    p= answer.body
+    
+    = render('shared/controls', path: answer_path(answer)) if current_user&.author_of?(answer)

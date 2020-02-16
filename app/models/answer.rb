@@ -1,6 +1,6 @@
 class Answer < ApplicationRecord
-  belongs_to :question, foreign_key: :question_id, inverse_of: :answers, required: true
-  belongs_to :user, foreign_key: :user_id, inverse_of: :answers, required: true
+  belongs_to :question, inverse_of: :answers
+  belongs_to :user, inverse_of: :answers
 
   validates :body, presence: true
 end

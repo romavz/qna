@@ -5,14 +5,16 @@ class AnswersController < ApplicationController
     @answer = question.answers.new(answer_params)
     @answer.user = current_user
 
-    flash.notice = @answer.errors.full_messages unless @answer.save
-
-    redirect_to question_path question
+    if @answer.save
+      redirect_to question_path question
+    else
+      render 'questions/show'
+    end
   end
 
   def destroy
-    answer = Answer.find(params[:id])
-    if current_user.author?(answer)
+    answer = Answer.includes(:user).find(params[:id])
+    if current_user.author_of?(answer)
       answer.destroy
       flash.notice = 'Your answer successfully deleted'
     else

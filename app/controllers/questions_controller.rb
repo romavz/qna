@@ -22,8 +22,8 @@ class QuestionsController < ApplicationController
   end
 
   def destroy
-    question = Question.find(params[:id])
-    if current_user.author?(question)
+    question = Question.includes(:user).find(params[:id])
+    if current_user.author_of?(question)
       question.destroy
       flash.notice = 'Your question successfully deleted'
       redirect_to questions_path and return

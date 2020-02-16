@@ -7,7 +7,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  def author?(content)
-    content.respond_to?(:user) && content.user == self
+  def author_of?(content)
+    content&.user == self
   end
 end

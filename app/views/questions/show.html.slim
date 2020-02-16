@@ -1,9 +1,9 @@
 h1= question.title
-= add_controls_for question, question_path(question)
+= render('shared/controls', path: question_path(question)) if current_user&.author_of?(question)
 
 p= question.body
 
 .answers
   = render question.answers
 
-  = add_answer_form(question, @answer)
+  = render('answers/new', question: question, answer: @answer) unless current_user.nil?
