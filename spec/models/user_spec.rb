@@ -9,14 +9,14 @@ RSpec.describe User, type: :model do
     let(:some_content) { double }
 
     context 'for owned entities' do
-      before { some_content.stub(:user) { user } }
+      before { some_content.stub(:user_id) { user.id } }
       it 'should return true' do
         expect(user).to be_author_of(some_content)
       end
     end
 
     context 'for non owned entities' do
-      before { some_content.stub(:user) { Object.new } }
+      before { some_content.stub(:user_id) { 0 } }
       it 'should return false' do
         expect(user).not_to be_author_of(some_content)
       end
