@@ -2,7 +2,8 @@ class AnswersController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    @answer = question.answers.new(answer_params)
+    @answer = Answer.new(answer_params)
+    @answer.question = question
     @answer.user = current_user
 
     if @answer.save
@@ -13,7 +14,7 @@ class AnswersController < ApplicationController
   end
 
   def destroy
-    answer = Answer.includes(:user).find(params[:id])
+    answer = Answer.find(params[:id])
     if current_user.author_of?(answer)
       answer.destroy
       flash.notice = 'Your answer successfully deleted'

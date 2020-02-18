@@ -4,30 +4,42 @@ RSpec.describe QuestionsController, type: :controller do
   let(:user) { create(:user) }
   let(:question) { create(:question, user: user) }
 
-  context 'For guest' do
-    describe 'GET #index' do
-      let(:questions) { create_list :question, 5 }
+  shared_examples "don't changes questions count" do
+    it "don't changes questions count" do
+      expect { subject }.to_not change(Question, :count)
+    end
+  end
 
-      before { get :index }
+  shared_examples 'redirecs to login path' do
+    it 'redirecs to login path' do
+      expect(subject).to redirect_to(new_user_session_path)
+    end
+  end
 
-      it 'pupulate questions list' do
-        expect(assigns(:questions)).to match_array(questions)
-      end
+  describe 'GET #index' do
+    let(:questions) { create_list :question, 5 }
 
-      it 'renders index view' do
-        expect(response).to render_template :index
-      end
+    before { get :index }
+
+    it 'pupulate questions list' do
+      expect(assigns(:questions)).to match_array(questions)
     end
 
-    describe 'GET #show' do
-      before { get :show, params: { id: question } }
-
-      it 'renders show view' do
-        expect(response).to render_template :show
-      end
+    it 'renders index view' do
+      expect(response).to render_template :index
     end
+  end
 
-    describe 'GET #new' do
+  describe 'GET #show' do
+    before { get :show, params: { id: question } }
+
+    it 'renders show view' do
+      expect(response).to render_template :show
+    end
+  end
+
+  describe 'GET #new' do
+    context 'by guest' do
       before { get :new }
 
       it 'redirecs to login path' do
@@ -35,46 +47,27 @@ RSpec.describe QuestionsController, type: :controller do
       end
     end
 
-    shared_examples "don't changes questions count" do
-      it "don't changes questions count" do
-        expect { subject }.to_not change(Question, :count)
-      end
-    end
-
-    shared_examples 'redirecs to login path' do
-      it 'redirecs to login path' do
-        expect(subject).to redirect_to(new_user_session_path)
-      end
-    end
-
-    describe 'POST #create' do
-      subject { post :create, params: { question: attributes_for(:question) } }
-
-      include_examples "don't changes questions count"
-      include_examples 'redirecs to login path'
-    end
-
-    describe 'DELETE #destroy' do
-      let!(:question) { :question }
-      subject { delete :destroy, params: { id: question } }
-
-      include_examples "don't changes questions count"
-      include_examples 'redirecs to login path'
-    end
-  end # context 'For guest'
-
-  context 'For authenticated user' do
-    before { login(user) }
-
-    describe 'GET #new' do
+    context 'by authenticated user' do
+      before { login(user) }
       before { get :new }
 
       it 'renders new view' do
         expect(response).to render_template :new
       end
     end
+  end
 
-    describe 'POST #create' do
+  describe 'POST #create' do
+    context 'by guest' do
+      subject { post :create, params: { question: attributes_for(:question) } }
+
+      include_examples "don't changes questions count"
+      include_examples 'redirecs to login path'
+    end
+
+    context 'by authenticated user' do
+      before { login(user) }
+
       context 'with valid attributes' do
         subject { post :create, params: { question: attributes_for(:question) } }
 
@@ -98,13 +91,26 @@ RSpec.describe QuestionsController, type: :controller do
           expect(subject).to render_template :new
         end
       end # context
-    end # describe 'POST #create'
+    end # context 'by authenticated user'
 
-    describe 'DELETE #destroy' do
+  end # describe 'POST #create'
+
+  describe 'DELETE #destroy' do
+    context 'by guest' do
+      let!(:question) { :question }
+      subject { delete :destroy, params: { id: question } }
+
+      include_examples "don't changes questions count"
+      include_examples 'redirecs to login path'
+    end
+
+    context 'by authenticated user' do
+      before { login(user) }
+
       let!(:question) { create(:question, user: user) }
       subject { delete :destroy, params: { id: question } }
 
-      context 'question belongs to user' do
+      context 'and question belongs to user' do
 
         it 'user delete question' do
           expect { subject }.to change(Question, :count).by(-1)
@@ -115,7 +121,7 @@ RSpec.describe QuestionsController, type: :controller do
         end
       end
 
-      context 'question belongs to other user' do
+      context 'but question belongs to other user' do
         let(:user2) { create(:user) }
         let!(:question) { create(:question, user: user2) }
 
@@ -127,6 +133,8 @@ RSpec.describe QuestionsController, type: :controller do
           expect(subject).to redirect_to question_path(question)
         end
       end
-    end # describe 'DELETE #destroy'
-  end # context 'For authenticated user'
+
+    end # context 'by authenticated user'
+  end # describe 'DELETE #destroy'
+
 end

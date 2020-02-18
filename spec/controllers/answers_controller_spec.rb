@@ -10,14 +10,14 @@ RSpec.describe AnswersController, type: :controller do
     end
   end
 
-  context 'For guest' do
-    shared_examples 'redirects to login path' do
-      it 'redirects to login path' do
-        expect(subject).to redirect_to(new_user_session_path)
-      end
+  shared_examples 'redirects to login path' do
+    it 'redirects to login path' do
+      expect(subject).to redirect_to(new_user_session_path)
     end
+  end
 
-    describe 'POST #create' do
+  describe 'POST #create' do
+    context 'by guest' do
       let(:answer_attributes) { attributes_for(:answer) }
       subject { post :create, params: { question_id: question, answer: answer_attributes } }
 
@@ -25,19 +25,8 @@ RSpec.describe AnswersController, type: :controller do
       include_examples 'redirects to login path'
     end
 
-    describe 'DELETE #destroy' do
-      let!(:answer) { create :answer }
-      subject { delete :destroy, params: { id: answer } }
-
-      include_examples "don't changes answers count"
-      include_examples 'redirects to login path'
-    end
-  end
-
-  context 'For authenticated user' do
-    before { login(user) }
-
-    describe 'POST #create' do
+    context 'by authenticated user' do
+      before { login(user) }
       let(:answer_attributes) { attributes_for(:answer) }
 
       subject { post :create, params: { question_id: question, answer: answer_attributes } }
@@ -68,11 +57,22 @@ RSpec.describe AnswersController, type: :controller do
         end
       end
     end
+  end
 
-    describe 'DELETE #destroy' do
+  describe 'DELETE #destroy' do
+    context 'by guest' do
+      let!(:answer) { create :answer }
       subject { delete :destroy, params: { id: answer } }
 
-      context 'answer belongs to user' do
+      include_examples "don't changes answers count"
+      include_examples 'redirects to login path'
+    end
+
+    context 'by authenticated user' do
+      before { login(user) }
+      subject { delete :destroy, params: { id: answer } }
+
+      context 'and answer belongs to user' do
         let!(:answer) { create(:answer, question: question, user: user) }
 
         it 'must delete answer' do
@@ -84,7 +84,7 @@ RSpec.describe AnswersController, type: :controller do
         end
       end
 
-      context 'answer belongs to other user' do
+      context 'but answer belongs to other user' do
         let(:user_2) { create :user }
         let!(:answer) { create(:answer, question: question, user: user_2) }
 
@@ -94,7 +94,7 @@ RSpec.describe AnswersController, type: :controller do
           expect(subject).to redirect_to question
         end
       end
-    end # context 'For authenticated user'
+    end
   end
 
 end
