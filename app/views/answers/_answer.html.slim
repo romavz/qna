@@ -1,0 +1,4 @@
+.answer
+  p= answer.body
+  
+  = render('shared/controls', path: answer_path(answer)) if current_user&.author_of?(answer)

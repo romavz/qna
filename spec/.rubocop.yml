@@ -3,3 +3,10 @@ inherit_from:
 
 Metrics/BlockLength:
   Enabled: false
+
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: false
+
+Style/RedundantPercentQ:
+  Enabled: false
+  
