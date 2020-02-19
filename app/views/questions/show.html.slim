@@ -6,4 +6,4 @@ p= question.body
 .answers
   = render question.answers
 
-  = render('answers/new', question: question, answer: @answer) unless current_user.nil?
+= render('answers/new', question: question, answer: @answer) unless current_user.nil?

@@ -29,7 +29,13 @@ RSpec.describe AnswersController, type: :controller do
       before { login(user) }
       let(:answer_attributes) { attributes_for(:answer) }
 
-      subject { post :create, params: { question_id: question, answer: answer_attributes } }
+      subject { post :create, params: { question_id: question, answer: answer_attributes }, format: :js }
+
+      shared_examples 'renders template :create' do
+        it 'renders template :create' do
+          expect(subject).to render_template :create
+        end
+      end
 
       context 'with valid attributes' do
         it 'saves a new answer in database' do
@@ -37,19 +43,14 @@ RSpec.describe AnswersController, type: :controller do
           expect(assigns(:answer).errors).to be_empty
         end
 
-        it 'redirects to question show view' do
-          expect(subject).to redirect_to assigns(:question)
-        end
+        include_examples 'renders template :create'
       end
 
       context 'with invalid attributes' do
         let(:answer_attributes) { attributes_for(:answer, :invalid) }
 
         include_examples "don't changes answers count"
-
-        it 'renders question show view' do
-          expect(subject).to render_template 'questions/show'
-        end
+        include_examples 'renders template :create'
 
         it 'assigns answer errors' do
           subject
