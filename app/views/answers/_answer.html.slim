@@ -1,4 +1,9 @@
-.answer
-  p= answer.body
+.answer id="#{answer.id}"
+  p name="body"= answer.body  
+  = render('shared/controls', path: answer_path(answer), resource: answer)
   
-  = render('shared/controls', path: answer_path(answer)) if current_user&.author_of?(answer)
+  = form_with model: answer, class: 'hidden', html: { id: "edit-answer-#{answer.id}"}  do |f|
+    = f.label :body, 'Your answer'
+    = f.text_area :body
+
+    = f.submit 'Save'

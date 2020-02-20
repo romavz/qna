@@ -1,5 +1,5 @@
 h1= question.title
-= render('shared/controls', path: question_path(question)) if current_user&.author_of?(question)
+= render('shared/controls', path: question_path(question), resource: question )
 
 p= question.body
 

@@ -60,6 +60,38 @@ RSpec.describe AnswersController, type: :controller do
     end
   end
 
+  describe 'PATCH #update' do
+    context 'by authenticated user' do
+      before { login(user) }
+      let!(:answer) { create :answer, question: question }
+
+      context 'with valid attributes' do
+        before { patch :update, params: { id: answer, answer: { body: 'edited text' } }, format: :js }
+
+        it 'changed answer attributes' do
+          answer.reload
+          expect(answer.body).to eq 'edited text'
+        end
+
+        it 'renders template :update' do
+          expect(response).to render_template :update
+        end
+      end
+
+      context 'with invalid attributes' do
+        subject { patch :update, params: { id: answer, answer: attributes_for(:answer, :invalid) }, format: :js }
+
+        it 'do not change answer body' do
+          expect { subject }.to_not change(answer, :body)
+        end
+
+        it 'renders template :update' do
+          expect(subject).to render_template :update
+        end
+      end
+    end
+  end
+
   describe 'DELETE #destroy' do
     context 'by guest' do
       let!(:answer) { create :answer }

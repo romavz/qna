@@ -1,0 +1,9 @@
+$('.answer-errors').html('<%= render 'shared/errors', resource: @answer %>');
+
+<% unless @answer.errors.present? %>
+  var answerId = <%= j @answer.id %>;
+  var answer = $('.answer#' + answerId);
+  answer.find('.edit-answer-link').show();
+  answer.find('[name="body"]').html('<%= j @answer.body %>');
+  $('form#edit-answer-' + answerId).addClass('hidden');
+<% end %>
