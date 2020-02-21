@@ -16,6 +16,18 @@ RSpec.describe AnswersController, type: :controller do
     end
   end
 
+  shared_examples 'returns status: Unauthorized' do
+    it 'returns status: Unauthorized' do
+      expect(subject).to have_http_status(:unauthorized)
+    end
+  end
+
+  shared_examples 'returns status: Forbidden' do
+    it 'returns status: Forbidden' do
+      expect(subject).to have_http_status(:forbidden)
+    end
+  end
+
   describe 'POST #create' do
     context 'by guest' do
       let(:answer_attributes) { attributes_for(:answer) }
@@ -61,33 +73,56 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe 'PATCH #update' do
+    let!(:answer) { create :answer, question: question, user: user }
+
+    context 'by guest' do
+      subject { patch :update, params: { id: answer, answer: { body: 'edited text' } }, format: :js }
+
+      it 'do not change answer body' do
+        expect { subject }.to_not change(answer, :body)
+      end
+      include_examples 'returns status: Unauthorized'
+    end
+
     context 'by authenticated user' do
       before { login(user) }
-      let!(:answer) { create :answer, question: question }
 
-      context 'with valid attributes' do
-        before { patch :update, params: { id: answer, answer: { body: 'edited text' } }, format: :js }
+      context 'and answer belongs to user' do
+        context 'with valid attributes' do
+          before { patch :update, params: { id: answer, answer: { body: 'edited text' } }, format: :js }
 
-        it 'changed answer attributes' do
-          answer.reload
-          expect(answer.body).to eq 'edited text'
+          it 'changed answer attributes' do
+            answer.reload
+            expect(answer.body).to eq 'edited text'
+          end
+
+          it 'renders template :update' do
+            expect(response).to render_template :update
+          end
         end
 
-        it 'renders template :update' do
-          expect(response).to render_template :update
+        context 'with invalid attributes' do
+          subject { patch :update, params: { id: answer, answer: attributes_for(:answer, :invalid) }, format: :js }
+
+          it 'do not change answer body' do
+            expect { subject }.to_not change(answer, :body)
+          end
+
+          it 'renders template :update' do
+            expect(subject).to render_template :update
+          end
         end
       end
 
-      context 'with invalid attributes' do
-        subject { patch :update, params: { id: answer, answer: attributes_for(:answer, :invalid) }, format: :js }
+      context 'but answer belongs to other user' do
+        let!(:answer) { create :answer, question: question }
+        subject { patch :update, params: { id: answer, answer: { body: 'edited text' } }, format: :js }
 
         it 'do not change answer body' do
-          expect { subject }.to_not change(answer, :body)
+          expect { response }.to_not change(answer, :body)
         end
 
-        it 'renders template :update' do
-          expect(subject).to render_template :update
-        end
+        include_examples 'returns status: Forbidden'
       end
     end
   end
@@ -95,15 +130,15 @@ RSpec.describe AnswersController, type: :controller do
   describe 'DELETE #destroy' do
     context 'by guest' do
       let!(:answer) { create :answer }
-      subject { delete :destroy, params: { id: answer } }
+      subject { delete :destroy, params: { id: answer }, format: :js }
 
       include_examples "don't changes answers count"
-      include_examples 'redirects to login path'
+      include_examples 'returns status: Unauthorized'
     end
 
     context 'by authenticated user' do
       before { login(user) }
-      subject { delete :destroy, params: { id: answer } }
+      subject { delete :destroy, params: { id: answer }, format: :js }
 
       context 'and answer belongs to user' do
         let!(:answer) { create(:answer, question: question, user: user) }
@@ -112,8 +147,8 @@ RSpec.describe AnswersController, type: :controller do
           expect { subject }.to change(Answer, :count).by(-1)
         end
 
-        it 'redirects to question show view' do
-          expect(subject).to redirect_to question
+        it 'returns status: :success' do
+          expect(subject).to have_http_status(:success)
         end
       end
 
@@ -122,10 +157,7 @@ RSpec.describe AnswersController, type: :controller do
         let!(:answer) { create(:answer, question: question, user: user_2) }
 
         include_examples "don't changes answers count"
-
-        it 'redirects to question show view' do
-          expect(subject).to redirect_to question
-        end
+        include_examples 'returns status: Forbidden'
       end
     end
   end

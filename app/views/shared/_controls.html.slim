@@ -4,4 +4,4 @@
     - res_id = "#{res_name}_id".to_sym 
     = link_to 'Edit', '#', class: "edit-#{res_name}-link", data: { res_id => resource.id }
     |  | 
-    = link_to 'Delete', path, method: :delete
+    = link_to 'Delete', path, class: "destroy-#{res_name}", method: :delete, remote: true

@@ -10,20 +10,21 @@ class AnswersController < ApplicationController
 
   def update
     @answer = Answer.find(params[:id])
-    @answer.update(answer_params)
-    @question = @answer.question
+    if current_user.author_of?(@answer)
+      @answer.update(answer_params)
+      @question = @answer.question
+    else
+      render status: :forbidden
+    end
   end
 
   def destroy
-    answer = Answer.find(params[:id])
-    if current_user.author_of?(answer)
-      answer.destroy
-      flash.notice = 'Your answer successfully deleted'
+    @answer = Answer.find(params[:id])
+    if current_user.author_of?(@answer)
+      @answer.destroy
     else
-      flash.notice = 'You can delete only your own answers'
+      render status: :forbidden
     end
-
-    redirect_to question_path answer.question
   end
 
   private
