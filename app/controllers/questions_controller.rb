@@ -21,16 +21,20 @@ class QuestionsController < ApplicationController
     end
   end
 
+  def update
+    if current_user.author_of?(question)
+      question.update(question_params)
+    else
+      render status: :forbidden
+    end
+  end
+
   def destroy
-    question = Question.find(params[:id])
     if current_user.author_of?(question)
       question.destroy
-      flash.notice = 'Your question successfully deleted'
-      redirect_to questions_path and return
+    else
+      render status: :forbidden
     end
-
-    flash.notice = 'You can delete only your own questions.'
-    redirect_back fallback_location: question_path(question)
   end
 
   private

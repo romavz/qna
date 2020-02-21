@@ -7,29 +7,31 @@ feature 'Автор может удалять только свои вопрос
 ) do
   let(:user) { create(:user) }
   let(:user_2) { create(:user) }
-  let(:question) { create(:question, user: user) }
-  let(:user2_question) { create(:question, user: user_2) }
+  let!(:question) { create(:question, user: user) }
 
-  describe 'Аутентифицированный пользователь' do
+  describe 'Аутентифицированный пользователь', js: true do
     before { sign_in(user) }
 
     scenario 'может удалить свой вопрос' do
-      visit question_path(question)
-      click_on 'Delete'
+      visit questions_path
+      within('.questions') { click_on 'Delete' }
 
       expect(current_path).to eq questions_path
-      expect(page).to have_content('Your question successfully deleted')
+      expect(page).to have_no_content(question.title)
     end
 
-    scenario 'не может удалить чужой вопрос' do
-      visit question_path(user2_question)
+    context do
+      let!(:question) { create(:question, user: user_2) }
+      scenario 'не может удалить чужой вопрос' do
+        visit questions_path
 
-      expect(page).to have_no_content('Delete')
+        expect(page).to have_no_content('Delete')
+      end
     end
   end
 
   scenario 'Неаутентифицированный пользователь не может удалять вопросы' do
-    visit question_path(question)
+    visit questions_path
 
     expect(page).to have_no_content('Delete')
   end

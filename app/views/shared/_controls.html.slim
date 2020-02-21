@@ -1,5 +1,9 @@
+- # parameters:
+- #   resource - answer or question object
+- #   path - route path to resource
+
 - if current_user&.author_of?(resource)
-  p.controls
+  .controls
     - res_name = resource.class.name.downcase
     - res_id = "#{res_name}_id".to_sym 
     = link_to 'Edit', '#', class: "edit-#{res_name}-link", data: { res_id => resource.id }
