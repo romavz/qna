@@ -29,19 +29,16 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe 'POST #create' do
-    context 'by guest' do
-      let(:answer_attributes) { attributes_for(:answer) }
-      subject { post :create, params: { question_id: question, answer: answer_attributes } }
+    let(:answer_attributes) { attributes_for(:answer) }
+    subject { post :create, params: { question_id: question, answer: answer_attributes }, format: :js }
 
+    context 'by guest' do
       include_examples "don't changes answers count"
-      include_examples 'redirects to login path'
+      include_examples 'returns status: Unauthorized'
     end
 
     context 'by authenticated user' do
       before { login(user) }
-      let(:answer_attributes) { attributes_for(:answer) }
-
-      subject { post :create, params: { question_id: question, answer: answer_attributes }, format: :js }
 
       shared_examples 'renders template :create' do
         it 'renders template :create' do
