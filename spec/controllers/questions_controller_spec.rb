@@ -181,7 +181,6 @@ RSpec.describe QuestionsController, type: :controller do
 
   end # describe 'PATCH mark_answer'
 
-
   describe 'PATCH update' do
     let!(:question) { create :question, user: user }
     let(:new_question_attributes) { { title: 'new title', body: 'new body' } }
@@ -256,7 +255,7 @@ RSpec.describe QuestionsController, type: :controller do
       let!(:question) { create(:question, user: user) }
       subject { delete :destroy, params: { id: question }, format: :js }
 
-      context 'and question belongs to user' do
+      shared_examples 'destroy user question' do
         it 'user delete question' do
           expect { subject }.to change(Question, :count).by(-1)
         end
@@ -264,6 +263,20 @@ RSpec.describe QuestionsController, type: :controller do
         it 'renders template :destroy' do
           expect(subject).to render_template :destroy
         end
+      end
+
+      context 'and question belongs to user' do
+        context 'and best answer not present' do
+          include_examples 'destroy user question'
+        end
+
+        context 'and best answer is present' do
+          let!(:answer) { create :answer, question: question }
+          before { question.update(best_answer_id: answer.id) }
+
+          include_examples 'destroy user question'
+        end
+
       end
 
       context 'but question belongs to other user' do
