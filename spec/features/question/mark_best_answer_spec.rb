@@ -46,6 +46,22 @@ feature 'Автор вопроса, может отметить один отв�
         end
       end
 
+      context 'и один ответ отмечен как лучший' do
+        given!(:question) do
+          a_question = create :question, :with_answers, user: user
+          a_question.update(best_answer_id: a_question.answers.first.id)
+          a_question
+        end
+
+        scenario 'ответ имеет отметку лучшего И у него скрыта ссылка для установки отметки лучшего' do
+          best_answer_node = find('.best-answer')
+          expect(page).to have_css('.best-answer', count: 1)
+          within(best_answer_node) do
+            expect(page).to_not have_content('Mark as best')
+          end
+        end
+      end
+
       context 'и отмечает лучшие ответы' do
         before do
           all('.answer').each do |answer_node|
