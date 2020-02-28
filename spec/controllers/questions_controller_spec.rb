@@ -21,7 +21,7 @@ RSpec.describe QuestionsController, type: :controller do
 
     before { get :index }
 
-    it 'pupulate questions list' do
+    it 'poppulate questions list' do
       expect(assigns(:questions)).to match_array(questions)
     end
 
@@ -31,10 +31,20 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   describe 'GET #show' do
+    let!(:question) { create :question, :with_answers }
+    before { question.update(best_answer_id: question.answers.first.id) }
     before { get :show, params: { id: question } }
 
     it 'renders show view' do
       expect(response).to render_template :show
+    end
+
+    it 'poppulate best answer' do
+      expect(assigns(:best_answer)).to eq question.best_answer
+    end
+
+    it 'poppulate answers list without best_answer' do
+      expect(assigns(:answers).to_a).to match question.answers.where.not(id: question.best_answer_id).to_a
     end
   end
 
@@ -95,20 +105,88 @@ RSpec.describe QuestionsController, type: :controller do
 
   end # describe 'POST #create'
 
+  shared_examples 'do not change question attributes' do
+    it 'do not change question attributes' do
+      old_attributes = question.attributes
+      question.reload
+
+      expect(question).to have_attributes(old_attributes)
+    end
+  end
+
+  describe 'PATCH mark_answer' do
+    let!(:question) { create :question, user: user }
+    let!(:prev_best_answer) { create :answer, question: question }
+    let!(:answer) { create :answer, question: question }
+
+    subject { patch :mark_answer, params: { id: question, answer_id: answer }, format: :js }
+
+    context 'by guest' do
+      before { subject }
+
+      include_examples 'do not change question attributes'
+
+      it 'returns status: Unauthorized' do
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'by authenticated user' do
+      before { login(user) }
+      before do
+        question.update(best_answer_id: prev_best_answer.id)
+        subject
+      end
+
+      context 'question belongs to user' do
+        context 'with valid answer_id' do
+          it 'set question best_answer_id to new answer_id' do
+            question.reload
+            expect(question.best_answer_id).to eq answer.id
+          end
+
+          it 'assigns answer to new best answer' do
+            expect(assigns(:answer)).to eq answer
+          end
+
+          it 'renders mark_answer template' do
+            expect(response).to render_template :mark_answer
+          end
+        end
+
+        context 'with invalid answer_id' do
+          let!(:question2) { create :question }
+          let!(:answer) { create :answer, question: question2 }
+
+          include_examples 'do not change question attributes'
+
+          it 'returns status: Forbidden' do
+            expect(response).to have_http_status :forbidden
+          end
+        end
+      end
+
+      context 'question belongs to other user' do
+        let!(:user2) { create :user }
+        let!(:question) { create :question, :with_answers, user: user2 }
+
+        include_examples 'do not change question attributes'
+
+        it 'returns staus: Forbidden' do
+          expect(response).to have_http_status :forbidden
+        end
+      end
+
+    end
+
+  end # describe 'PATCH mark_answer'
+
+
   describe 'PATCH update' do
     let!(:question) { create :question, user: user }
     let(:new_question_attributes) { { title: 'new title', body: 'new body' } }
 
     subject { patch :update, params: { id: question, question: new_question_attributes }, format: :js }
-
-    shared_examples 'do not change question attributes' do
-      it 'do not change question attributes' do
-        old_attributes = question.attributes
-        question.reload
-
-        expect(question).to have_attributes(old_attributes)
-      end
-    end
 
     context 'by guest' do
       before { subject }

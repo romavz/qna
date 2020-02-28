@@ -1,0 +1,13 @@
+
+var bestAnswerId = '<%= j @answer.id %>'
+
+var prev_best_answer = $('.answer.best-answer');
+prev_best_answer.removeClass('best-answer');
+prev_best_answer.find('a:contains("Mark as best")').removeClass('hidden')
+
+var answer = $('.answer#' + bestAnswerId);
+answer.remove();
+answer.addClass('best-answer');
+answer.find('a:contains("Mark as best")').addClass('hidden')
+
+$('.answers').prepend(answer);

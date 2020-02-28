@@ -7,6 +7,8 @@ class QuestionsController < ApplicationController
 
   def show
     @answer = Answer.new
+    @best_answer = question.answers.find_by(id: question.best_answer_id)
+    @answers = question.answers.where.not(id: question.best_answer_id)
   end
 
   def new; end
@@ -24,6 +26,17 @@ class QuestionsController < ApplicationController
   def update
     if current_user.author_of?(question)
       question.update(question_params)
+    else
+      render status: :forbidden
+    end
+  end
+
+  def mark_answer
+    @question = Question.find(params[:id])
+    @answer = Answer.find(params[:answer_id])
+
+    if current_user.author_of?(question) && @answer.question_id == question.id
+      question.update(best_answer_id: @answer.id)
     else
       render status: :forbidden
     end
