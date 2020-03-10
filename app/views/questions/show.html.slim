@@ -2,7 +2,6 @@ h1.question-title= question.title
 p.question-body= question.body
 
 .answers
-  = render @best_answer if @best_answer
   = render @answers
 
 = render('answers/new', question: question, answer: @answer) if user_signed_in?

@@ -1,6 +1,6 @@
 $('.answer-errors').html('<%= render 'shared/errors', resource: @answer %>');
 
-<% unless @answer.errors.present? %>
+<% if @answer.errors.blank? %>
   var answerId = <%= j @answer.id %>;
   var answer = $('.answer#' + answerId);
   answer.find('.edit-answer-link').show();

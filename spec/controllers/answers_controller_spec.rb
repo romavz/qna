@@ -85,8 +85,16 @@ RSpec.describe AnswersController, type: :controller do
       before { login(user) }
 
       context 'and answer belongs to user' do
+        before do
+          expect(user).to be_author_of(answer)
+        end
+
         context 'with valid attributes' do
           before { patch :update, params: { id: answer, answer: { body: 'edited text' } }, format: :js }
+
+          it 'have status :success' do
+            expect(response).to have_http_status :success
+          end
 
           it 'changed answer attributes' do
             answer.reload

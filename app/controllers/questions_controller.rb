@@ -1,5 +1,6 @@
 class QuestionsController < ApplicationController
   before_action :authenticate_user!, except: %i[index show]
+  before_action :check_author, only: %i[mark_answer update destroy]
 
   def index
     @questions = Question.all
@@ -7,8 +8,7 @@ class QuestionsController < ApplicationController
 
   def show
     @answer = Answer.new
-    @best_answer = question.answers.find_by(id: question.best_answer_id)
-    @answers = question.answers.where.not(id: question.best_answer_id)
+    @answers = question.answers
   end
 
   def new; end
@@ -24,33 +24,30 @@ class QuestionsController < ApplicationController
   end
 
   def update
-    if current_user.author_of?(question)
-      question.update(question_params)
-    else
-      render status: :forbidden
-    end
+    question.update(question_params)
   end
 
   def mark_answer
     @question = Question.find(params[:id])
-    @answer = Answer.find(params[:answer_id])
+    answer = @question.answers.find_by(id: params[:answer_id])
 
-    if current_user.author_of?(question) && @answer.question_id == question.id
-      question.update(best_answer_id: @answer.id)
+    if answer.present?
+      answer.mark_as_best
+      @best_answer = answer
     else
       render status: :forbidden
     end
   end
 
   def destroy
-    if current_user.author_of?(question)
-      question.destroy
-    else
-      render status: :forbidden
-    end
+    question.destroy
   end
 
   private
+
+  def check_author
+    render status: :forbidden unless current_user.author_of?(question)
+  end
 
   def question
     @question ||= params[:id] ? Question.find(params[:id]) : Question.new

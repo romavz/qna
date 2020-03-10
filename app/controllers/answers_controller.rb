@@ -1,5 +1,6 @@
 class AnswersController < ApplicationController
   before_action :authenticate_user!
+  before_action :check_author, except: %i[create]
 
   def create
     @answer = Answer.new(answer_params)
@@ -9,25 +10,23 @@ class AnswersController < ApplicationController
   end
 
   def update
-    @answer = Answer.find(params[:id])
-    if current_user.author_of?(@answer)
-      @answer.update(answer_params)
-      @question = @answer.question
-    else
-      render status: :forbidden
-    end
+    answer.update(answer_params)
+    @question = answer.question
   end
 
   def destroy
-    @answer = Answer.find(params[:id])
-    if current_user.author_of?(@answer)
-      @answer.destroy
-    else
-      render status: :forbidden
-    end
+    answer.destroy
   end
 
   private
+
+  def check_author
+    render status: :forbidden unless current_user.author_of?(answer)
+  end
+
+  def answer
+    @answer ||= Answer.find(params[:id])
+  end
 
   def question
     @question ||= Question.find(params[:question_id])

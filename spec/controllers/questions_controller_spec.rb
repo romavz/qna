@@ -32,19 +32,19 @@ RSpec.describe QuestionsController, type: :controller do
 
   describe 'GET #show' do
     let!(:question) { create :question, :with_answers }
-    before { question.update(best_answer_id: question.answers.first.id) }
+    before { question.answers.first.mark_as_best }
     before { get :show, params: { id: question } }
 
     it 'renders show view' do
       expect(response).to render_template :show
     end
 
-    it 'poppulate best answer' do
-      expect(assigns(:best_answer)).to eq question.best_answer
+    it 'populate answer for "new answer form"' do
+      expect(assigns(:answer)).to be_new_record
     end
 
-    it 'poppulate answers list without best_answer' do
-      expect(assigns(:answers).to_a).to match question.answers.where.not(id: question.best_answer_id).to_a
+    it 'poppulate answers' do
+      expect(assigns(:answers).to_a).to match question.answers.to_a
     end
   end
 
@@ -105,18 +105,9 @@ RSpec.describe QuestionsController, type: :controller do
 
   end # describe 'POST #create'
 
-  shared_examples 'do not change question attributes' do
-    it 'do not change question attributes' do
-      old_attributes = question.attributes
-      question.reload
-
-      expect(question).to have_attributes(old_attributes)
-    end
-  end
-
   describe 'PATCH mark_answer' do
     let!(:question) { create :question, user: user }
-    let!(:prev_best_answer) { create :answer, question: question }
+    let!(:prev_best_answer) { create :answer, question: question, best: true }
     let!(:answer) { create :answer, question: question }
 
     subject { patch :mark_answer, params: { id: question, answer_id: answer }, format: :js }
@@ -124,7 +115,7 @@ RSpec.describe QuestionsController, type: :controller do
     context 'by guest' do
       before { subject }
 
-      include_examples 'do not change question attributes'
+      # include_examples 'do not change question attributes'
 
       it 'returns status: Unauthorized' do
         expect(response).to have_http_status(:unauthorized)
@@ -133,20 +124,17 @@ RSpec.describe QuestionsController, type: :controller do
 
     context 'by authenticated user' do
       before { login(user) }
-      before do
-        question.update(best_answer_id: prev_best_answer.id)
-        subject
-      end
+      before { subject }
 
       context 'question belongs to user' do
-        context 'with valid answer_id' do
-          it 'set question best_answer_id to new answer_id' do
-            question.reload
-            expect(question.best_answer_id).to eq answer.id
+        context 'with valid answer' do
+
+          it 'set question best_answer to new answer' do
+            expect(question.best_answer).to eq answer
           end
 
           it 'assigns answer to new best answer' do
-            expect(assigns(:answer)).to eq answer
+            expect(assigns(:best_answer)).to eq answer
           end
 
           it 'renders mark_answer template' do
@@ -158,8 +146,6 @@ RSpec.describe QuestionsController, type: :controller do
           let!(:question2) { create :question }
           let!(:answer) { create :answer, question: question2 }
 
-          include_examples 'do not change question attributes'
-
           it 'returns status: Forbidden' do
             expect(response).to have_http_status :forbidden
           end
@@ -169,8 +155,6 @@ RSpec.describe QuestionsController, type: :controller do
       context 'question belongs to other user' do
         let!(:user2) { create :user }
         let!(:question) { create :question, :with_answers, user: user2 }
-
-        include_examples 'do not change question attributes'
 
         it 'returns staus: Forbidden' do
           expect(response).to have_http_status :forbidden
@@ -186,6 +170,15 @@ RSpec.describe QuestionsController, type: :controller do
     let(:new_question_attributes) { { title: 'new title', body: 'new body' } }
 
     subject { patch :update, params: { id: question, question: new_question_attributes }, format: :js }
+
+    shared_examples 'do not change question attributes' do
+      it 'do not change question attributes' do
+        old_attributes = question.attributes
+        question.reload
+
+        expect(question).to have_attributes(old_attributes)
+      end
+    end
 
     context 'by guest' do
       before { subject }
@@ -272,7 +265,7 @@ RSpec.describe QuestionsController, type: :controller do
 
         context 'and best answer is present' do
           let!(:answer) { create :answer, question: question }
-          before { question.update(best_answer_id: answer.id) }
+          before { answer.mark_as_best }
 
           include_examples 'destroy user question'
         end

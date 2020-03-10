@@ -7,10 +7,10 @@
 
   -if user_signed_in?
     -if current_user.author_of?(question)
-      = link_to 'Mark as best', mark_answer_for_question_path(question, answer), class: is_hidden, method: :patch, remote: true 
-      
+      = link_to 'Mark as best', mark_answer_for_question_path(question, answer), class: is_hidden, method: :patch, remote: true
+
     = render('shared/controls', path: answer_path(answer), resource: answer)
-    
+
     = form_with model: answer, class: 'hidden', html: { id: "edit-answer-#{answer.id}"}  do |f|
       = f.label :body, 'Your answer'
       = f.text_area :body
