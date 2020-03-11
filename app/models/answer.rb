@@ -7,9 +7,9 @@ class Answer < ApplicationRecord
   validates :body, presence: true
 
   def mark_as_best
-    return if best
-
-    Answer.where(question_id: question_id).update_all(best: false)
-    update(best: true)
+    Answer.transaction do
+      question.answers.update_all(best: false)
+      update!(best: true)
+    end
   end
 end

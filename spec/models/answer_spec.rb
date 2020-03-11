@@ -10,14 +10,10 @@ RSpec.describe Answer, type: :model do
   it { should validate_presence_of :body }
 
   describe 'Ordering. By default' do
-    let!(:question) { create :question }
-    let!(:answers) { [] }
+    let!(:question) { create :question, :with_answers, answers_count: 3 }
+    let!(:answers) { question.answers.to_a }
 
     before do
-      answers << create(:answer, question: question)
-      answers << create(:answer, question: question)
-      answers << create(:answer, question: question)
-
       answers.third.update(best: true)
     end
 
@@ -43,6 +39,23 @@ RSpec.describe Answer, type: :model do
     it 'best answers count will be one' do
       answer_2.mark_as_best
       expect(question.answers.where(best: true).count).to eq 1
+    end
+
+    RSpec::Matchers.define_negated_matcher :not_change, :change
+
+    context 'when error rised' do
+      def answers_attributes # объявление с помощью let будет работать неправильно
+        [].tap do |result|
+          Answer.find_each { |answer| result << answer.attributes }
+        end
+      end
+
+      it 'do not make changes in any answer' do
+        expect(answer_2).to receive(:update!).and_raise("error")
+        expect { answer_2.mark_as_best }
+          .to raise_error("error")
+          .and(not_change { answers_attributes })
+      end
     end
   end
 end

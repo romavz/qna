@@ -124,13 +124,73 @@ RSpec.describe AnswersController, type: :controller do
         subject { patch :update, params: { id: answer, answer: { body: 'edited text' } }, format: :js }
 
         it 'do not change answer body' do
-          expect { response }.to_not change(answer, :body)
+          expect { subject }.to_not change(answer, :body)
         end
 
         include_examples 'returns status: Forbidden'
       end
     end
   end
+
+  describe 'PATCH #mark_as_best' do
+    let!(:question) { create :question, user: user }
+    let!(:prev_best_answer) { create :answer, question: question, best: true }
+    let!(:answer) { create :answer, question: question }
+
+    subject { patch :mark_as_best, params: { id: answer, format: :js } }
+
+    context 'by guest' do
+      it 'do not change answer attributes' do
+        expect { subject }.to_not change(answer, :attributes)
+      end
+
+      it 'returns status: Unauthorized' do
+        expect(subject).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'by authenticated user' do
+      before { login(user) }
+
+      context 'question belongs to user' do
+        before { subject }
+
+        context 'with valid answer' do
+
+          it 'assigns answer to new best answer' do
+            expect(assigns(:best_answer)).to eq answer
+          end
+
+          it 'renders mark_as_best template' do
+            expect(response).to render_template :mark_as_best
+          end
+        end
+
+        context 'with invalid answer_id' do
+          let!(:question2) { create :question }
+          let!(:answer) { create :answer, question: question2 }
+
+          it 'returns status: Forbidden' do
+            expect(response).to have_http_status :forbidden
+          end
+        end
+      end
+
+      context 'question belongs to other user' do
+        let!(:user2) { create :user }
+        let!(:question) { create :question, :with_answers, user: user2 }
+
+        it 'do not change answer attributes' do
+          expect { subject }.to_not change(answer, :attributes)
+        end
+
+        it 'returns staus: Forbidden' do
+          expect(subject).to have_http_status :forbidden
+        end
+      end
+
+    end
+  end # describe 'PATCH mark_as_best'
 
   describe 'DELETE #destroy' do
     context 'by guest' do

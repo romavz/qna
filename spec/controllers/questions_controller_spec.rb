@@ -105,66 +105,6 @@ RSpec.describe QuestionsController, type: :controller do
 
   end # describe 'POST #create'
 
-  describe 'PATCH mark_answer' do
-    let!(:question) { create :question, user: user }
-    let!(:prev_best_answer) { create :answer, question: question, best: true }
-    let!(:answer) { create :answer, question: question }
-
-    subject { patch :mark_answer, params: { id: question, answer_id: answer }, format: :js }
-
-    context 'by guest' do
-      before { subject }
-
-      # include_examples 'do not change question attributes'
-
-      it 'returns status: Unauthorized' do
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    context 'by authenticated user' do
-      before { login(user) }
-      before { subject }
-
-      context 'question belongs to user' do
-        context 'with valid answer' do
-
-          it 'set question best_answer to new answer' do
-            expect(question.best_answer).to eq answer
-          end
-
-          it 'assigns answer to new best answer' do
-            expect(assigns(:best_answer)).to eq answer
-          end
-
-          it 'renders mark_answer template' do
-            expect(response).to render_template :mark_answer
-          end
-        end
-
-        context 'with invalid answer_id' do
-          let!(:question2) { create :question }
-          let!(:answer) { create :answer, question: question2 }
-
-          it 'returns status: Forbidden' do
-            expect(response).to have_http_status :forbidden
-          end
-        end
-      end
-
-      context 'question belongs to other user' do
-        let!(:user2) { create :user }
-        let!(:question) { create :question, :with_answers, user: user2 }
-
-        it 'returns staus: Forbidden' do
-          expect(response).to have_http_status :forbidden
-        end
-      end
-
-    end
-
-  end # describe 'PATCH mark_answer'
-
   describe 'PATCH update' do
     let!(:question) { create :question, user: user }
     let(:new_question_attributes) { { title: 'new title', body: 'new body' } }

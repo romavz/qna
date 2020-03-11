@@ -27,18 +27,6 @@ class QuestionsController < ApplicationController
     question.update(question_params)
   end
 
-  def mark_answer
-    @question = Question.find(params[:id])
-    answer = @question.answers.find_by(id: params[:answer_id])
-
-    if answer.present?
-      answer.mark_as_best
-      @best_answer = answer
-    else
-      render status: :forbidden
-    end
-  end
-
   def destroy
     question.destroy
   end
