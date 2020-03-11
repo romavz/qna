@@ -27,11 +27,6 @@ RSpec.describe Answer, type: :model do
     let!(:answer_1) { create :answer, question: question, best: true }
     let!(:answer_2) { create :answer, question: question }
 
-    before(:each) do
-      expect(answer_1.best).to be true
-      expect(answer_2.best).to be false
-    end
-
     it 'change answer "best" state to true' do
       expect { answer_2.mark_as_best }.to change(answer_2, :best).to(true)
     end
@@ -44,17 +39,12 @@ RSpec.describe Answer, type: :model do
     RSpec::Matchers.define_negated_matcher :not_change, :change
 
     context 'when error rised' do
-      def answers_attributes # объявление с помощью let будет работать неправильно
-        [].tap do |result|
-          Answer.find_each { |answer| result << answer.attributes }
-        end
-      end
-
       it 'do not make changes in any answer' do
         expect(answer_2).to receive(:update!).and_raise("error")
         expect { answer_2.mark_as_best }
           .to raise_error("error")
-          .and(not_change { answers_attributes })
+          .and(not_change { answer_1.attributes })
+          .and(not_change { answer_2.attributes })
       end
     end
   end

@@ -1,13 +1,9 @@
-- if answer.best?
-  - is_best = 'best-answer'
-  - is_hidden = 'hidden'
-
-.answer id="#{answer.id}" class="#{is_best}"
+.answer id="#{answer.id}" class=('best-answer' if answer.best?)
   .body= answer.body
 
   -if user_signed_in?
     -if current_user.author_of?(question)
-      = link_to 'Mark as best', mark_as_best_answer_path(answer), class: is_hidden, method: :patch, remote: true
+      = link_to 'Mark as best', mark_as_best_answer_path(answer), class: ('hidden' if answer.best?), method: :patch, remote: true
 
     = render('answers/controls', answer: answer)
 
