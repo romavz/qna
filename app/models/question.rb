@@ -4,7 +4,4 @@ class Question < ApplicationRecord
 
   validates :title, :body, presence: true
 
-  def best_answer
-    answers.find_by(best: true)
-  end
 end
