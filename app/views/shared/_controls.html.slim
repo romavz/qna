@@ -1,9 +1,0 @@
-- # parameters:
-- #   resource - answer or question object
-- #   path - route path to resource
-
-- if current_user&.author_of?(resource)
-  .controls
-    = link_to 'Edit', '#', class: "edit-#{resource.class.name.downcase}-link", data: { "#{resource.class.name.downcase}_id".to_sym => resource.id }
-    |  |
-    = link_to 'Delete', path, class: "destroy-#{resource.class.name.downcase}", method: :delete, remote: true

@@ -9,7 +9,7 @@
     -if current_user.author_of?(question)
       = link_to 'Mark as best', mark_as_best_answer_path(answer), class: is_hidden, method: :patch, remote: true
 
-    = render('shared/controls', path: answer_path(answer), resource: answer)
+    = render('answers/controls', answer: answer)
 
     = form_with model: answer, class: 'hidden', html: { id: "edit-answer-#{answer.id}"}  do |f|
       = f.label :body, 'Your answer'
