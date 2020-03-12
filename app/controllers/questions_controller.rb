@@ -1,5 +1,6 @@
 class QuestionsController < ApplicationController
   before_action :authenticate_user!, except: %i[index show]
+  before_action :check_author, only: %i[mark_answer update destroy]
 
   def index
     @questions = Question.all
@@ -7,6 +8,7 @@ class QuestionsController < ApplicationController
 
   def show
     @answer = Answer.new
+    @answers = question.answers
   end
 
   def new; end
@@ -21,19 +23,19 @@ class QuestionsController < ApplicationController
     end
   end
 
-  def destroy
-    question = Question.find(params[:id])
-    if current_user.author_of?(question)
-      question.destroy
-      flash.notice = 'Your question successfully deleted'
-      redirect_to questions_path and return
-    end
+  def update
+    question.update(question_params)
+  end
 
-    flash.notice = 'You can delete only your own questions.'
-    redirect_back fallback_location: question_path(question)
+  def destroy
+    question.destroy
   end
 
   private
+
+  def check_author
+    render status: :forbidden unless current_user.author_of?(question)
+  end
 
   def question
     @question ||= params[:id] ? Question.find(params[:id]) : Question.new

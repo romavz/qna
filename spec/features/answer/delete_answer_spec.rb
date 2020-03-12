@@ -10,14 +10,13 @@ feature 'Автор может удалять только свои ответы
   given!(:question) { create(:question, user: user) }
   given!(:answer) { create(:answer, question: question, user: user) }
 
-  describe 'Аутентифицированный пользователь' do
+  describe 'Аутентифицированный пользователь', js: true do
     background { sign_in(user) }
     scenario 'может удалить свой ответ' do
       visit question_path(question)
       within('.answers') { click_on 'Delete' }
 
       expect(current_path).to eq question_path(question)
-      expect(page).to have_content('Your answer successfully deleted')
       expect(page).to have_no_content(answer.body)
     end
 

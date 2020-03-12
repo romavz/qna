@@ -1,0 +1,8 @@
+- # parameters:
+- #   answer - answer object
+
+- if current_user&.author_of?(answer)
+  .controls
+    = link_to 'Edit', '#', class: "edit-answer-link", data: { "answer_id".to_sym => answer.id }
+    |  |
+    = link_to 'Delete', answer_path(answer), class: "destroy-answer", method: :delete, remote: true

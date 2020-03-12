@@ -56,6 +56,7 @@ group :test do
   # Easy installation and use of web drivers to run system tests with browsers
   gem 'webdrivers'
   gem 'shoulda-matchers'
+  gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'rails-controller-testing'
   gem 'launchy'
 end

@@ -7,7 +7,7 @@ feature 'Пользователь может создавать ответ на 
 
   given(:question) { create(:question) }
 
-  describe 'Аутентифицированный пользователь' do
+  describe 'Аутентифицированный пользователь', js: true do
     given(:user) { create :user }
 
     background do

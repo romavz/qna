@@ -26,7 +26,7 @@ feature 'Только аутентифицированный пользоват�
       expect(page).to have_content('Some question text')
     end
 
-    scenario 'задает вопрос, с ошибками' do
+    scenario 'задает вопрос с ошибками' do
       click_on 'Ask'
 
       expect(page).to have_content('error(s) detected:')
