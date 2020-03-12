@@ -16,9 +16,8 @@ class AnswersController < ApplicationController
   end
 
   def mark_as_best
-    answer.mark_as_best unless answer.best?
+    answer.mark_as_best! unless answer.best?
     @best_answer = answer
-    @answers = question.answers
   end
 
   def destroy

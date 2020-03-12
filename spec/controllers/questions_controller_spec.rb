@@ -32,7 +32,7 @@ RSpec.describe QuestionsController, type: :controller do
 
   describe 'GET #show' do
     let!(:question) { create :question, :with_answers }
-    before { question.answers.first.mark_as_best }
+    before { question.answers.first.mark_as_best! }
     before { get :show, params: { id: question } }
 
     it 'renders show view' do
@@ -205,7 +205,7 @@ RSpec.describe QuestionsController, type: :controller do
 
         context 'and best answer is present' do
           let!(:answer) { create :answer, question: question }
-          before { answer.mark_as_best }
+          before { answer.mark_as_best! }
 
           include_examples 'destroy user question'
         end

@@ -1,4 +1,4 @@
-.question id="#{question.id}"
+.question id= question.id
   = link_to question.title, question_path(question), class: 'title'
 
   - if user_signed_in?

@@ -14,7 +14,7 @@ RSpec.describe Answer, type: :model do
     let!(:answers) { question.answers.to_a }
 
     before do
-      answers.third.update(best: true)
+      answers.third.update!(best: true)
     end
 
     it 'answers must be ordered by: [best: desc, id: asc]' do
@@ -22,17 +22,17 @@ RSpec.describe Answer, type: :model do
     end
   end
 
-  describe '#mark_as_best' do
+  describe '#mark_as_best!' do
     let!(:question) { create :question }
     let!(:answer_1) { create :answer, question: question, best: true }
     let!(:answer_2) { create :answer, question: question }
 
     it 'change answer "best" state to true' do
-      expect { answer_2.mark_as_best }.to change(answer_2, :best).to(true)
+      expect { answer_2.mark_as_best! }.to change(answer_2, :best).to(true)
     end
 
     it 'best answers count will be one' do
-      answer_2.mark_as_best
+      answer_2.mark_as_best!
       expect(question.answers.where(best: true).count).to eq 1
     end
 
@@ -41,7 +41,7 @@ RSpec.describe Answer, type: :model do
     context 'when error rised' do
       it 'do not make changes in any answer' do
         expect(answer_2).to receive(:update!).and_raise("error")
-        expect { answer_2.mark_as_best }
+        expect { answer_2.mark_as_best! }
           .to raise_error("error")
           .and(not_change { answer_1.attributes })
           .and(not_change { answer_2.attributes })
