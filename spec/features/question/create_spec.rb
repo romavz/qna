@@ -8,7 +8,7 @@ feature 'Только аутентифицированный пользоват�
   given(:user) { create(:user) }
 
   describe 'Аутентифицированный пользователь' do
-    before do
+    background do
       sign_in(user)
 
       visit questions_path
@@ -30,6 +30,17 @@ feature 'Только аутентифицированный пользоват�
       click_on 'Ask'
 
       expect(page).to have_content('error(s) detected:')
+    end
+
+    scenario 'задает вопрос с прикреплением файла' do
+      fill_in 'Title', with: 'Some title'
+      fill_in 'Body', with: 'Some question text'
+
+      attach_file 'Files', ["#{Rails.root}/spec/rails_helper.rb", "#{Rails.root}/spec/spec_helper.rb"]
+      click_on 'Ask'
+
+      expect(page).to have_link 'rails_helper.rb'
+      expect(page).to have_link 'spec_helper.rb'
     end
   end
 
