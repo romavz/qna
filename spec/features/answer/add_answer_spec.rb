@@ -29,6 +29,20 @@ feature 'Пользователь может создавать ответ на 
       click_on 'Add answer'
       expect(page).to have_content("Body can't be blank")
     end
+
+    scenario 'может прикреплять файлы к своему ответу' do
+      fill_in 'Your answer', with: 'Some answer text'
+      attach_file 'Files', ["#{Rails.root}/spec/rails_helper.rb", "#{Rails.root}/spec/spec_helper.rb"]
+
+      click_on 'Add answer'
+
+      expect(current_path).to eq question_path(question)
+      within '.answers' do
+        expect(page).to have_link 'rails_helper.rb'
+        expect(page).to have_link 'spec_helper.rb'
+      end
+    end
+
   end
 
   scenario 'Неаутентифицированному пользователю недоступна форма ввода ответов' do

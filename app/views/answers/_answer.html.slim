@@ -1,6 +1,10 @@
 .answer id="#{answer.id}" class=('best-answer' if answer.best?)
   .body= answer.body
 
+  - if answer.files.attached?
+    - answer.files.each do |file|
+      p= link_to file.filename.to_s, url_for(file)
+
   -if user_signed_in?
     -if current_user.author_of?(question)
       = link_to 'Mark as best', mark_as_best_answer_path(answer), class: ('hidden' if answer.best?), method: :patch, remote: true

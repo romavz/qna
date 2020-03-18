@@ -4,6 +4,8 @@ class Answer < ApplicationRecord
   belongs_to :question, inverse_of: :answers
   belongs_to :user, inverse_of: :answers
 
+  has_many_attached :files
+
   validates :body, presence: true
 
   def mark_as_best!
