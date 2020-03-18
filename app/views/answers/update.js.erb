@@ -3,7 +3,5 @@ $('.answer-errors').html('<%= render 'shared/errors', resource: @answer %>');
 <% if @answer.errors.blank? %>
   var answerId = <%= j @answer.id %>;
   var answer = $('.answer#' + answerId);
-  answer.find('.edit-answer-link').show();
-  answer.find('.body').html('<%= j @answer.body %>');
-  $('form#edit-answer-' + answerId).addClass('hidden');
+  answer.html('<%= j(render 'answer', answer: @answer) %>');
 <% end %>

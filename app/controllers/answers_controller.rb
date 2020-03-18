@@ -11,7 +11,8 @@ class AnswersController < ApplicationController
   end
 
   def update
-    answer.update(answer_params)
+    answer.update(body: answer_params[:body])
+    answer.files.attach(answer_params[:files])
     @question = answer.question
   end
 

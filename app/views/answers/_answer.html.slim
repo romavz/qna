@@ -1,9 +1,10 @@
 .answer id="#{answer.id}" class=('best-answer' if answer.best?)
   .body= answer.body
 
-  - if answer.files.attached?
-    - answer.files.each do |file|
-      p= link_to file.filename.to_s, url_for(file)
+  .attachments
+    -if answer.files.attached?
+      -answer.files.each do |file|
+        p= link_to file.filename.to_s, url_for(file)
 
   -if user_signed_in?
     -if current_user.author_of?(question)
@@ -12,7 +13,11 @@
     = render('answers/controls', answer: answer)
 
     = form_with model: answer, class: 'hidden', html: { id: "edit-answer-#{answer.id}"}  do |f|
-      = f.label :body, 'Your answer'
-      = f.text_area :body
-
-      = f.submit 'Save'
+      p
+        = f.label :body, 'Your answer'
+        = f.text_area :body
+      p
+        = f.label :files
+        = f.file_field :files, multiple: true
+      p
+        = f.submit 'Save'
