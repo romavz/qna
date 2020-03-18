@@ -32,7 +32,7 @@ feature 'Только аутентифицированный пользоват�
       expect(page).to have_content('error(s) detected:')
     end
 
-    scenario 'задает вопрос с прикреплением файла' do
+    scenario 'задает вопрос с прикреплением файлов' do
       fill_in 'Title', with: 'Some title'
       fill_in 'Body', with: 'Some question text'
 

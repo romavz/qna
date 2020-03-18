@@ -52,6 +52,18 @@ feature 'Аутентифицированный пользователь мож�
         expect(page).to have_content "Body can't be blank"
       end
     end
+
+    scenario 'может добавлять файлы во время редактирования вопроса' do
+      within('.questions') do
+        click_on 'Edit'
+        fill_in 'Title', with: 'new question title'
+        fill_in 'Question', with: 'new question text'
+        attach_file 'Files', ["#{Rails.root}/spec/rails_helper.rb", "#{Rails.root}/spec/spec_helper.rb"]
+        click_on 'Save'
+      end
+
+      expect(page).to have_content 'Files successfully added'
+    end
   end
 
 end

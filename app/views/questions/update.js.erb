@@ -1,5 +1,9 @@
 $('.question-errors').html('<%= render 'shared/errors', resource: @question %>');
 
+<% if question.files.attached? %>
+  $('.notice').html('Files successfully added')
+<% end %>
+
 <% if @question.errors.blank? %>
   var questionId = <%= j @question.id %>;
   var question = $('.question#' + questionId);
