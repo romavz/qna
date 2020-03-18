@@ -24,7 +24,8 @@ class QuestionsController < ApplicationController
   end
 
   def update
-    question.update(question_params)
+    question.update(question_params.reject { |key, _val| key == :files })
+    question.files.attach(question_params[:files])
   end
 
   def destroy

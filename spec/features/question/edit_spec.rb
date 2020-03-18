@@ -41,16 +41,43 @@ feature 'Аутентифицированный пользователь мож�
       end
     end
 
-    scenario 'заполняет вопрос с ошибками' do
-      within('.questions') do
-        click_on 'Edit'
-        fill_in 'Title', with: ''
-        fill_in 'Question', with: ''
-        click_on 'Save'
-
-        expect(page).to have_content "Title can't be blank"
-        expect(page).to have_content "Body can't be blank"
+    context 'заполняет вопрос с ошибками' do
+      background do
+        within('.questions') do
+          click_on 'Edit'
+          fill_in 'Title', with: ''
+          fill_in 'Question', with: ''
+        end
       end
+
+      scenario 'получает сообщение с описанием ошибок' do
+        within('.questions') do
+          click_on 'Save'
+
+          expect(page).to have_content "Title can't be blank"
+          expect(page).to have_content "Body can't be blank"
+        end
+      end
+
+      context 'И прикрепляет файлы' do
+        background do
+          question.files.attach(
+            io: File.open("#{Rails.root}/spec/support/controller_helpers.rb"),
+            filename: 'controller_helpers.rb'
+          )
+        end
+
+        scenario 'список прикрепленных файлов не меняется' do
+          within('.questions') do
+            attach_file 'Files', ["#{Rails.root}/spec/rails_helper.rb", "#{Rails.root}/spec/spec_helper.rb"]
+            click_on 'Save'
+          end
+
+          expect(question.files.size).to be 1
+          expect(question.files.first.filename).to eq 'controller_helpers.rb'
+        end
+      end
+
     end
 
     scenario 'может добавлять файлы во время редактирования вопроса' do
